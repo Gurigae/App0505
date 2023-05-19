@@ -4,17 +4,27 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,6 +32,10 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
     private LeDeviceListAdapter mLeDeviceListAdapter;
+    private EditText editMac1,editMac2,editMac3,Count;
+
+    private Button startButton,stopButton;
+    private String mac1,mac2,mac3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,13 +52,31 @@ public class MainActivity extends AppCompatActivity {
         bluetoothAdapter = bluetoothManager.getAdapter();
         bleCheck(bluetoothAdapter);
 
-        // 버튼리스너
-        Button startButton = findViewById(R.id.startbutton);
-        Button stopButton = findViewById(R.id.stopbutton);
+        // Button, EditText 릿느ㅓ
+        startButton = findViewById(R.id.startbutton);
+        stopButton = findViewById(R.id.stopbutton);
+        editMac1 = findViewById(R.id.mac1);
+        editMac2 = findViewById(R.id.mac2);
+        editMac3 = findViewById(R.id.mac3);
+        Count=findViewById(R.id.count);
+
+
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //입력받은 MAC주소 가져오기
+                editMac1.setText("D0:39:72:A4:B3:95");
+                editMac2.setText("D0:39:72:A4:B4:A9");
+                editMac3.setText("D0:39:72:A4:9E:AB");
+
+                mac1 = editMac1.getText().toString();
+                mac2 = editMac1.getText().toString();
+                mac3 = editMac1.getText().toString();
+
                 startScan();
+
+                mLeDeviceListAdapter.clear();
+                mLeDeviceListAdapter.notifyDataSetChanged();
             }
         });
         stopButton.setOnClickListener(new View.OnClickListener() {
@@ -61,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //블루투스 지원 여부
+    //블루투스 지원 여부a
     private void bleCheck(BluetoothAdapter bluetoothAdapter) {
         if (bluetoothAdapter == null) {
             // Bluetooth is not supported, turn off the device
@@ -102,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     private void stopScan() {
         if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
             // Stop scanning for BLE devices
@@ -116,24 +149,43 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             bluetoothAdapter.stopLeScan(leScanCallback);
-            mLeDeviceListAdapter.clear();
-            mLeDeviceListAdapter.notifyDataSetChanged();
         }
     }
 
     private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
+        private int countsize=Integer.parseInt(Count.getText().toString());
+        private ArrayList<BluetoothDevice> BLE1=new ArrayList<>();
         @Override
         public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
-            runOnUiThread(new Runnable() {
+            //String deviceName = device.getName();
+            String deviceAddress = device.getAddress();
+            Log.d("BLE_SCAN", "SCAN: [" + deviceAddress + "]");
+            /*if(device != null && device.getName() != null && device.getName().equals("pebBLE"){*/
+            String filterDevices = mac1 +"|"+ mac2+ "|"+ mac3;
+            boolean filter = deviceAddress.matches(filterDevices);
+            //filter = deviceAddress.matches("?");
+            if (filter) {
+                Log.e("BLE_SCAN", "SCAN_FILTER: " + deviceAddress);
+                mLeDeviceListAdapter.addDevice(device, rssi, scanRecord);
+                mLeDeviceListAdapter.notifyDataSetChanged();
+                if (deviceAddress.equals(mac1)) {
+                    BLE1.add(device);
+                }
+                for (int i=0;i<countsize;i++) {
+
+                }
+
+            }
+        }
+
+          /* runOnUiThread(new Runnable() {
                 public void run() {
-                    String deviceName = device.getName();
-                    /*if(device != null && device.getName() != null && device.getName().equals("pebBLE"){*/
-                    if (deviceName != null && !deviceName.equals("unknown device")) { // unknow device 검색x 필터링
-                        mLeDeviceListAdapter.addDevice(device, rssi, scanRecord);
-                        mLeDeviceListAdapter.notifyDataSetChanged();
-                    }
+
                 }
             });
         }
+        private void processBeaconData(List<BluetoothDevice> devices){
+
+        }*/
     };
 }
