@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -35,11 +36,11 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
     private LeDeviceListAdapter mLeDeviceListAdapter;
-    private EditText editMac1,editMac2,editMac3,Count;
+    private EditText editMac1, editMac2, editMac3, Count;
     private int countsize;
-    private Button startButton,stopButton,saveButton;
-    private String mac1,mac2,mac3;
-    private ArrayList<ArrayList<Integer>> rssiData=new ArrayList<>();
+    private Button startButton, stopButton, saveButton;
+    private String mac1, mac2, mac3;
+    private ArrayList<ArrayList<Integer>> rssiData = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,11 +60,11 @@ public class MainActivity extends AppCompatActivity {
         // Button, EditText 릿느ㅓ
         startButton = findViewById(R.id.startbutton);
         stopButton = findViewById(R.id.stopbutton);
-        saveButton= findViewById(R.id.savebutton);
+        saveButton = findViewById(R.id.savebutton);
         editMac1 = findViewById(R.id.mac1);
         editMac2 = findViewById(R.id.mac2);
         editMac3 = findViewById(R.id.mac3);
-        Count=findViewById(R.id.count);
+        Count = findViewById(R.id.count);
 
 
         startButton.setOnClickListener(new View.OnClickListener() {
@@ -76,8 +77,8 @@ public class MainActivity extends AppCompatActivity {
                 Count.setText("10");
 
                 mac1 = editMac1.getText().toString();
-                mac2 = editMac1.getText().toString();
-                mac3 = editMac1.getText().toString();
+                mac2 = editMac2.getText().toString();
+                mac3 = editMac3.getText().toString();
                 countsize = Integer.parseInt(Count.getText().toString());
 
                 startScan();
@@ -91,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 stopScan();
+                Log.d("STOP_BUTTON", "STOP 버튼이 클릭되었습니다.");
             }
         });
 
@@ -98,8 +100,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 saveDataToCSV(rssiData);
-                Log.d("SAVE_BUTTON", "Save 버튼이 클릭되었습니다.");
-
+                Log.d("SAVE_BUTTON", "SAVE 버튼이 클릭되었습니다..");
             }
         });
 
@@ -136,15 +137,14 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
     private void saveDataToCSV(ArrayList<ArrayList<Integer>> rssiData) {
         File directory = new File(getExternalFilesDir(null) + getPackageName());
         if (!directory.exists()) {
             directory.mkdirs(); // 폴더가 존재하지 않으면 생성
         }
         String csvFileName = "test1.csv"; // 파일 이름 설정
-
         File file = new File(directory, csvFileName);
-
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             for (ArrayList<Integer> rssiList : rssiData) {
                 // 각 ArrayList의 요소들을 CSV 형식으로 변환하여 파일에 쓰기
@@ -164,7 +164,6 @@ public class MainActivity extends AppCompatActivity {
             Log.e("CSV_SAVE", "CSV 파일 저장 중 오류가 발생했습니다.");
         }
     }
-
 
     //스캔 함수
     private void startScan() {
@@ -200,32 +199,30 @@ public class MainActivity extends AppCompatActivity {
 
     public BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
         private ArrayList<BluetoothDevice> BLE1 = new ArrayList<>();
+        private ArrayList<BluetoothDevice> BLE2 = new ArrayList<>();
+        private ArrayList<BluetoothDevice> BLE3 = new ArrayList<>();
         //private ArrayList<ArrayList<Integer>> rssiData = new ArrayList<>();
         private Logger logger;
 
         @Override
         public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
             String deviceAddress = device.getAddress();
-            Log.d("BLE_SCAN", "SCAN: [" + deviceAddress + "]");
 
-            // MAC 주소 필터링
-            String filterDevices = mac1 + "|" + mac2 + "|" + mac3;
-            boolean filter = deviceAddress.matches(filterDevices);
-
-            if (filter) {
-                Log.e("BLE_SCAN", "SCAN_FILTER: " + deviceAddress);
-                mLeDeviceListAdapter.addDevice(device, rssi, scanRecord);
-                mLeDeviceListAdapter.notifyDataSetChanged();
-
-                if (deviceAddress.equals(mac1)) {
-                    BLE1.add(device);
-                    updateRSSIData(0, rssi); // 0번 인덱스에 RSSI 값 추가
-                } else if (deviceAddress.equals(mac2)) {
-                    updateRSSIData(1, rssi); // 1번 인덱스에 RSSI 값 추가
-                } else if (deviceAddress.equals(mac3)) {
-                    updateRSSIData(2, rssi); // 2번 인덱스에 RSSI 값 추가
-                }
+            mLeDeviceListAdapter.addDevice(device, rssi, scanRecord);
+            mLeDeviceListAdapter.notifyDataSetChanged();
+            if (deviceAddress.equals(mac1)) {
+                BLE1.add(device);
+                updateRSSIData(0, rssi); // 0번 인덱스에 RSSI 값 추가
+            } else if (deviceAddress.equals(mac2)) {
+                BLE2.add(device);
+                updateRSSIData(1, rssi); // 1번 인덱스에 RSSI 값 추가
+            } else if (deviceAddress.equals(mac3)) {
+                BLE3.add(device);
+                updateRSSIData(2, rssi); // 2번 인덱스에 RSSI 값 추가
             }
+            Log.d("BLE_SCAN", "SCAN: [" + deviceAddress + "]");
+            Log.e("BLE_SCAN", "SCAN_FILTER: " + deviceAddress);
+
         }
 
         public void updateRSSIData(int beaconIndex, int rssi) {
@@ -242,15 +239,18 @@ public class MainActivity extends AppCompatActivity {
 
             if (rssiList.size() >= countsize) {
                 // countsize를 초과하는 경우, 가장 오래된 값을 제거하여 유지
+                //Toast.makeText(this, "스캔이 완료되었습니다.", Toast.LENGTH_SHORT).show();
                 stopScan();
                 //rssiList.remove(0);
             }
 
-            if (rssiData.get(0).size() >= countsize) {
+            if ((rssiData.get(0).size()>=countsize)&&(rssiData.get(1).size()>=countsize)&&(rssiData.get(2).size()>=countsize)) {
                 // BLE1의 RSSI 데이터가 countsize만큼 수집된 경우
                 // 이곳에서 원하는 처리를 수행할 수 있습니다.
                 // 예: BLE1에 저장된 RSSI 값 출력
                 Log.d("BLE_SCAN", "BLE1 RSSI values: " + rssiData.get(0).toString());
+                Log.d("BLE_SCAN", "BLE2 RSSI values: " + rssiData.get(1).toString());
+                Log.d("BLE_SCAN", "BLE3 RSSI values: " + rssiData.get(2).toString());
             }
         }
     };
