@@ -13,37 +13,36 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class LeDeviceListAdapter extends BaseAdapter {
-    private ArrayList<BluetoothDevice> mLeDevices;
-    private ArrayList<Integer> mRssis;
-    private ArrayList<byte[]> mScanRecords;
+    private ArrayList<BeaconDTO> mLeDevices;
     private LayoutInflater mInflater;
 
     public LeDeviceListAdapter(Context context) {
         super();
-        mLeDevices = new ArrayList<BluetoothDevice>();
-        mRssis = new ArrayList<Integer>();
-        mScanRecords = new ArrayList<byte[]>();
+        mLeDevices = new ArrayList<BeaconDTO>();
         mInflater = LayoutInflater.from(context);
     }
 
     @SuppressLint("MissingPermission")
     public void addDevice(BluetoothDevice device, int rssi, byte[] scanRecord) {
-        if (!mLeDevices.contains(device)) {
-            mLeDevices.add(device);
-            mRssis.add(rssi);
-            mScanRecords.add(scanRecord);
-            Log.d("DEVICE", "Device found: " + device.getName() + " " + device.getAddress());
-        }
-    }
 
-    public BluetoothDevice getDevice(int position) {
+        for(int i=0; i<mLeDevices.size(); i++){
+            BeaconDTO dto = mLeDevices.get(i);
+            if(dto.getAddress().equals(device.getAddress())){
+                dto.setName(device.getName());
+                dto.setRssi(rssi);
+                return;
+            }
+        }
+        mLeDevices.add(new BeaconDTO(device.getName(), device.getAddress(), rssi));
+        Log.d("DEVICE", "Device found: " + device.getName() + " " + device.getAddress());
+     }
+
+    public BeaconDTO getDevice(int position) {
         return mLeDevices.get(position);
     }
 
     public void clear() {
         mLeDevices.clear();
-        mRssis.clear();
-        mScanRecords.clear();
     }
 
     @Override
@@ -76,14 +75,14 @@ public class LeDeviceListAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) view.getTag();
         }
 
-        BluetoothDevice device = mLeDevices.get(i);
-        @SuppressLint("MissingPermission") final String deviceName = device.getName();
+        BeaconDTO beaconDTO = mLeDevices.get(i);
+        @SuppressLint("MissingPermission") final String deviceName = beaconDTO.getName();
         if (deviceName != null && deviceName.length() > 0)
             viewHolder.deviceName.setText(deviceName);
         else
             viewHolder.deviceName.setText("Unknown device");
-        viewHolder.deviceAddress.setText(device.getAddress());
-        viewHolder.deviceRssi.setText("RSSI: " + mRssis.get(i) + "dBm");
+        viewHolder.deviceAddress.setText(beaconDTO.getAddress());
+        viewHolder.deviceRssi.setText("RSSI: " + beaconDTO.getRssi() + "dBm");
 
         return view;
     }
