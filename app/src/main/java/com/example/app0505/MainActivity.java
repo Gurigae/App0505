@@ -34,7 +34,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+{
     //블루투스가 켜지면 자동으로  대략적인 위치를 가져오는 퍼미션을 요청.
     private final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
     //블루투스 스캔을 위한 BluetoothManager, bluetoothAdapter
@@ -44,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private EditText editMac1,editMac2,editMac3,Count,Area;
     private Button startButton,stopButton,saveButton,setButton;
-
 
     //Count에서 입력받은 사이즈를 정수형으로 저장할 변수 countsize
     private int countsize;
@@ -62,16 +62,15 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         //PermissionManager = new PermissionManager(this);
 
         // 위치 권한 요청
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
 
         // BluetoothAdapter 가져오기
         bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
@@ -90,15 +89,18 @@ public class MainActivity extends AppCompatActivity {
         Area=findViewById(R.id.area);
 
         //기존에 설정한 맥주소, 카운트 개수를 자동 입력
-        setButton.setOnClickListener(new View.OnClickListener() {
-            //            @Override
+        setButton.setOnClickListener(new View.OnClickListener()
+        {
+            //@Override
             public void onClick(View v) {
                 firstSetting();
             }
         });
-        startButton.setOnClickListener(new View.OnClickListener() {
+        startButton.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view)
+            {
 
                 preparingScan();
                 startScan();
@@ -108,17 +110,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        stopButton.setOnClickListener(new View.OnClickListener() {
+        stopButton.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view)
+            {
                 stopScan();
                 Log.d("STOP_BUTTON", "STOP 버튼이 클릭되었습니다.");
             }
         });
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
+        saveButton.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view)
+            {
                 saveDataToCSV();
                 saveButton.setTextColor(Color.WHITE);
                 Log.d("SAVE_BUTTON", "SAVE 버튼이 클릭되었습니다..");
@@ -133,7 +139,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //스캔 초기 세팅 2
-    private void preparingScan(){
+    private void preparingScan()
+    {
         mac1 = editMac1.getText().toString();
         mac2 = editMac2.getText().toString();
         mac3 = editMac3.getText().toString();
@@ -145,7 +152,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //초기 세팅 함수. 실험을 위해 준비된 비콘의 MAC주소, 카운트 갯수를 미리 지정한다.
-    private void firstSetting(){
+    private void firstSetting()
+    {
         //입력받은 MAC주소 가져오기
         editMac1.setText("D0:39:72:A4:B3:95");
         editMac2.setText("D0:39:72:A4:B4:A9");
@@ -154,15 +162,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //블루투스 지원 여부
-    private void bleCheck(BluetoothAdapter bluetoothAdapter) {
+    private void bleCheck(BluetoothAdapter bluetoothAdapter)
+    {
 
-        if (bluetoothAdapter == null) {
+        if (bluetoothAdapter == null)
+        {
             // Bluetooth is not supported, turn off the device
             Toast.makeText(this, "블루투스를 지원하지 않는 장치입니다.", Toast.LENGTH_SHORT).show();
             finish();
-        } else {
+        }
+        else
+        {
             // If Bluetooth is not enabled, request to turn it on
-            if (!bluetoothAdapter.isEnabled()) {
+            if (!bluetoothAdapter.isEnabled())
+            {
                 Intent i = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
@@ -180,14 +193,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //스캔한 데이터를 CSV로 전환 후 내부 저장소에 저장는 함수
-    private void saveDataToCSV() {
+    private void saveDataToCSV()
+    {
         File directory = new File(getExternalFilesDir(null) + getPackageName());
-        if (!directory.exists()) {
+        if (!directory.exists())
+        {
             directory.mkdirs(); // 폴더가 존재하지 않으면 생성
         }
 
         String areaStr = Area.getText().toString();
-        if (areaStr == null || areaStr.isEmpty()) {
+        if (areaStr == null || areaStr.isEmpty())
+        {
             Toast.makeText(this, "영역 번호를 입력하세요.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -195,8 +211,10 @@ public class MainActivity extends AppCompatActivity {
 
         String csvFileName = area + "_" + countsize + ".csv"; // 파일 이름 설정
         File file = new File(directory, csvFileName);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            for (int i = 0; i < countsize; i++) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file)))
+        {
+            for (int i = 0; i < countsize; i++)
+            {
                 int b1, b2, b3;
                 b1 = beacon1.get(i);
                 b2 = beacon2.get(i);
@@ -207,7 +225,9 @@ public class MainActivity extends AppCompatActivity {
             }
             Toast.makeText(this, "데이터가 성공적으로 저장되었습니다.", Toast.LENGTH_SHORT).show();
             Log.d("CSV_SAVE", "CSV 파일이 성공적으로 저장되었습니다. 경로: " + file.getAbsolutePath());
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             Toast.makeText(this, "데이터 저장 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
             Log.e("CSV_SAVE", "CSV 파일 저장 중 오류가 발생했습니다.");
@@ -215,16 +235,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //스캔 시작 함수
-    private void startScan() {
+    private void startScan()
+    {
         if (mac1.isEmpty() || mac2.isEmpty() || mac3.isEmpty() || Count.getText().toString().isEmpty()) {
             Toast.makeText(this, "Mac 주소와 count를 입력해주세요.", Toast.LENGTH_SHORT).show();
-        } else {
-            if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
+        }
+        else
+        {
+            if (bluetoothAdapter != null && bluetoothAdapter.isEnabled())
+            {
                 // Start scanning for BLE devices
                 mLeDeviceListAdapter.clear();
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                {
                     ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
-                } else {
+                }
+                else
+                {
                     // 스캔 모드를 "Low Latency"로 설정
                     ScanSettings.Builder scanSettingsBuilder = new ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY);
 
@@ -232,36 +259,35 @@ public class MainActivity extends AppCompatActivity {
                     List<ScanFilter> scanFilters = new ArrayList<>();
 
                     // ScanFilter 생성 및 추가
-                    ScanFilter scanFilter1 = new ScanFilter.Builder()
-                            .setDeviceAddress(mac1)
-                            .build();
+                    ScanFilter scanFilter1 = new ScanFilter.Builder().setDeviceAddress(mac1).build();
                     scanFilters.add(scanFilter1);
 
-                    ScanFilter scanFilter2 = new ScanFilter.Builder()
-                            .setDeviceAddress(mac2)
-                            .build();
+                    ScanFilter scanFilter2 = new ScanFilter.Builder().setDeviceAddress(mac2).build();
                     scanFilters.add(scanFilter2);
 
-                    ScanFilter scanFilter3 = new ScanFilter.Builder()
-                            .setDeviceAddress(mac3)
-                            .build();
+                    ScanFilter scanFilter3 = new ScanFilter.Builder().setDeviceAddress(mac3).build();
                     scanFilters.add(scanFilter3);
 
                     // 스캔 시작
                     bluetoothAdapter.getBluetoothLeScanner().startScan(scanFilters, scanSettingsBuilder.build(), (ScanCallback) leScanCallback);
                     Toast.makeText(this, "스캔 시작", Toast.LENGTH_SHORT).show();
                 }
-            } else {
+            }
+            else
+            {
                 Toast.makeText(this, "블루투스를 활성화해주세요.", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
     //스캔 중지 함수
-    private void stopScan() {
-        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
+    private void stopScan()
+    {
+        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled())
+        {
             // Stop scanning for BLE devices
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            {
                 // TODO: Consider calling
                 //    ActivityCompat#requestPermissions
                 // here to request the missing permissions, and then overriding
@@ -277,9 +303,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //BLE 스캔 콜백
-    public android.bluetooth.le.ScanCallback leScanCallback = new android.bluetooth.le.ScanCallback() {
+    public android.bluetooth.le.ScanCallback leScanCallback = new android.bluetooth.le.ScanCallback()
+    {
         @Override
-        public void onScanResult(int callbackType, ScanResult result) {
+        public void onScanResult(int callbackType, ScanResult result)
+        {
             BluetoothDevice device = result.getDevice();
             int rssi = result.getRssi();
             byte[] scanRecord = result.getScanRecord() != null ? result.getScanRecord().getBytes() : null;
@@ -287,15 +315,20 @@ public class MainActivity extends AppCompatActivity {
             String deviceAddress = device.getAddress();
 
             // mac1, mac2, mac3와 스캔한 디바이스의 MAC 주소가 일치하면 각 beacon1, beacon2, beacon3에 RSSI 추가
-            if (deviceAddress.equals(mac1)) {
+            if (deviceAddress.equals(mac1))
+            {
                 mLeDeviceListAdapter.addDevice(device, rssi, scanRecord);
                 mLeDeviceListAdapter.notifyDataSetChanged();
                 beacon1.add(rssi);
-            } else if (deviceAddress.equals(mac2)) {
+            }
+            else if (deviceAddress.equals(mac2))
+            {
                 mLeDeviceListAdapter.addDevice(device, rssi, scanRecord);
                 mLeDeviceListAdapter.notifyDataSetChanged();
                 beacon2.add(rssi);
-            } else if (deviceAddress.equals(mac3)) {
+            }
+            else if (deviceAddress.equals(mac3))
+            {
                 mLeDeviceListAdapter.addDevice(device, rssi, scanRecord);
                 mLeDeviceListAdapter.notifyDataSetChanged();
                 beacon3.add(rssi);
@@ -309,19 +342,20 @@ public class MainActivity extends AppCompatActivity {
 
         // 스캔 실패 시 처리할 내용을 추가할 수 있습니다.
         @Override
-        public void onScanFailed(int errorCode) {
+        public void onScanFailed(int errorCode)
+        {
             super.onScanFailed(errorCode);
 
         }
 
         // 수집하고자하는 디바이스들의 RSSI 값이 countsize보다 같거나 많으면 스캔 중지
-        public void isFull() {
-            if (beacon1.size() >= countsize && beacon2.size() >= countsize && beacon3.size() >= countsize) {
+        public void isFull()
+        {
+            if (beacon1.size() >= countsize && beacon2.size() >= countsize && beacon3.size() >= countsize)
+            {
                 stopScan();
                 saveButton.setTextColor(Color.RED);
             }
         }
-
     };
-
 }
