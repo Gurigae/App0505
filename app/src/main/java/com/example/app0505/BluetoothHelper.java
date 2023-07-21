@@ -6,22 +6,21 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
+
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.util.Log;
+
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.ArrayList;
 
-//블루투스의 권한을 요청하는 클래스
+//BLE 디바이스 스캔을 위한 블루투스 기능이 포함된 클래스
 public class BluetoothHelper {
     private final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
     private  Context context;
@@ -29,31 +28,54 @@ public class BluetoothHelper {
     private BluetoothAdapter bluetoothadapter;
     Activity activity;
 
-    private BluetoothHelper(Context context) {
+    //Bluetooth를 사용하기 위한 초기 설정 함수.
+    //시스템 서비스에서 블루투스 서비스를 가져와 블루투스 매니저에 저장
+    //BluetoothManager의 장치의 기본 어댑터를 가져와 bluetoothadapter에 저장.
+    public BluetoothHelper(Context context,Activity activity)
+    {
+        this.activity = activity;
         this.context = context;
         bluetoothmanager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothadapter = bluetoothmanager.getAdapter();
-    }
 
-    private void permissionhelper(){
+        //블루투스의 권한 요청
+        //Activity
         ActivityCompat.requestPermissions(activity,
                 new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                 MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
     }
 
-    private void bleCheck(BluetoothAdapter bluetoothadapter){
-        if (bluetoothadapter==null){
+    /*
+    블루투스 사용을 위한 권한 관련 함수.
+    **BluetoothHelper에 편입시킴**
+    public void permissionCheck(){
+        ActivityCompat.requestPermissions(activity,
+                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
+    }
+    */
+
+
+    //
+    public void bleCheck(BluetoothAdapter bluetoothadapter){
+        if (bluetoothadapter==null)
+        {
             Toast.makeText(activity,"블루투스를 지원하지 않는 장비입니다.",Toast.LENGTH_SHORT);
             activity.finish();
         }
-        else{
+        else
+        {
             Intent intent;
-            if(!bluetoothadapter.isEnabled()){
+            if(!bluetoothadapter.isEnabled())
+            {
                 intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 activity.startActivity(intent);
             }
-            else{
-                if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            else
+            {
+                if (ActivityCompat.checkSelfPermission(activity,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                {
                     // 권한이 없는 경우 권한 요청
                     ActivityCompat.requestPermissions(activity,
                             new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
@@ -63,14 +85,32 @@ public class BluetoothHelper {
 
         }
     }
-
-    private void startScan(){
+    //LOW LATENCY 방식의 장치 스캔. 메소드를 사용하려는 곳에서 스캔 필터를 따로 작성해야 함
+    //TODO: 수집용 액티비티, 테스트용 액티비티를 위한 startScan() 별도 작성해야 함.
+    public void startScan(ArrayList<ScanFilter> scanfilters){
         bleCheck(bluetoothadapter);
-
+        if (bluetoothadapter != null && bluetoothadapter.isEnabled())
+        {
+            if (ActivityCompat.checkSelfPermission(context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            {
+                ActivityCompat.requestPermissions(activity,
+                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
+            }
+            else
+            {
+                ScanSettings.Builder scanSettingsBuilder = new ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY);
+                //bluetoothadapter.getBluetoothLeScanner().startScan(leScanCallback); //일반 스캔
+                bluetoothadapter.getBluetoothLeScanner().startScan(scanfilters, scanSettingsBuilder.build(),(ScanCallback) leScanCallback);
+                //스캔필터를 따라 LOW_LATENCY 기반 스캔
+            }
+        }
     }
 
-    private void stopScan(){
-        if (bluetoothadapter != null && bluetoothadapter.isEnabled()) {
+    public void stopScan(){
+        if (bluetoothadapter != null && bluetoothadapter.isEnabled())
+        {
             // Stop scanning for BLE devices
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
@@ -87,41 +127,22 @@ public class BluetoothHelper {
         }
     }
 
-    private void saveDataTOCSV(String areaStr,int countsize)
+    //지정한 개수만큼 스캔의 완료 여부 판단 함수.
+    //TODO: DTO를 만들어 파라미터를 간소화해야함
+    public boolean isFull(ArrayList<Integer> beacon1,ArrayList<Integer> beacon2, ArrayList<Integer> beacon3, int countsize)
     {
-        File directory = new File(getExternalFilesDir(null) + getPackageName());
-
-        if (!directory.exists())
+        if ((beacon1.size() == countsize) && (beacon2.size() == countsize) && (beacon3.size() == countsize))
         {
-            directory.mkdirs(); // 폴더가 존재하지 않으면 생성
+            stopScan();
+            Toast.makeText(activity,"스캔을 완료하였습니다.",Toast.LENGTH_SHORT).show();
+            return true;
         }
-        String areaStr= String.getText().toString();
-
-        if (areaStr == null || areaStr.isEmpty())
-        {
-            Toast.makeText(activity, "영역 번호를 입력하세요.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        int areaInteger = Integer.parseInt(areaStr);
-        String csvFileName = areaInteger + "_" + countsize + ".csv"; // 파일 이름 설정
-        File file = new File(directory, csvFileName);
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file)))
-        {
-            for (int i=0; i<countsize; i++)
-            {
-                int b1,b2,b3;
-
-            }
-        } catch (IOException e)
-        {
-            Toast.makeText(activity, "데이터 저장 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-            Log.e("CSV_SAVE", "CSV 파일 저장 중 오류가 발생했습니다.");
-        }
+        return false;
     }
-    public android.bluetooth.le.ScanCallback leScanCallback = new android.bluetooth.le.ScanCallback() {
+
+    //BLE 스캔 콜백 함수
+    public android.bluetooth.le.ScanCallback leScanCallback = new android.bluetooth.le.ScanCallback()
+    {
         public void onScanResult(int callbackType, ScanResult result)
         {
             BluetoothDevice device = result.getDevice();
@@ -133,6 +154,7 @@ public class BluetoothHelper {
         public void onScanFailed(int errorCode)
         {
             super.onScanFailed(errorCode);
+            Toast.makeText(activity,"스캔에 실패하였습니다.",Toast.LENGTH_SHORT).show();
         }
     };
 

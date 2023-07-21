@@ -16,7 +16,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -46,6 +45,9 @@ public class MainActivity extends AppCompatActivity
     private EditText editMac1,editMac2,editMac3,Count,Area;
     private Button startButton,stopButton,saveButton,setButton;
 
+    private CSVHelper csvhelper;
+    private BluetoothHelper bluetoothhelper;
+
     //Count에서 입력받은 사이즈를 정수형으로 저장할 변수 countsize
     private int countsize;
 
@@ -67,7 +69,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //PermissionManager = new PermissionManager(this);
+        csvhelper = new CSVHelper(this);
+        bluetoothhelper = new BluetoothHelper(this,this);
+        bluetoothhelper.bleCheck(bluetoothAdapter);
 
         // 위치 권한 요청
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
