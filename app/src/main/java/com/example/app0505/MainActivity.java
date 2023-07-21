@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity
     //리스트뷰의 아이템과 매인 액티비티에서 수행한 스캔 결과를 연동해 리스트뷰에 연결해주는 ListAdapter
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private EditText editMac1,editMac2,editMac3,Count,Area;
-    private Button startButton,stopButton,saveButton,setButton;
+    private Button startButton,stopButton,saveButton,setButton, collectionPage, testPage;
 
     private CSVHelper csvhelper;
     private BluetoothHelper bluetoothhelper;
@@ -69,9 +69,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        csvhelper = new CSVHelper(this);
+      /*  csvhelper = new CSVHelper(this);
         bluetoothhelper = new BluetoothHelper(this,this);
-        bluetoothhelper.bleCheck(bluetoothAdapter);
+        bluetoothhelper.bleCheck(bluetoothAdapter);*/
 
         // 위치 권한 요청
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
@@ -91,6 +91,8 @@ public class MainActivity extends AppCompatActivity
         editMac3=findViewById(R.id.mac3);
         Count=findViewById(R.id.count);
         Area=findViewById(R.id.area);
+        collectionPage=findViewById(R.id.collectionButton);
+        testPage=findViewById(R.id.testButton);
 
         //기존에 설정한 맥주소, 카운트 개수를 자동 입력
         setButton.setOnClickListener(new View.OnClickListener()
@@ -132,6 +134,26 @@ public class MainActivity extends AppCompatActivity
                 saveDataToCSV();
                 saveButton.setTextColor(Color.WHITE);
                 Log.d("SAVE_BUTTON", "SAVE 버튼이 클릭되었습니다..");
+            }
+        });
+
+        collectionPage.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent intent = new Intent(getApplicationContext(), CollectionActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        testPage.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent intent = new Intent(getApplicationContext(), TestActivity.class);
+                startActivity(intent);
             }
         });
 
