@@ -1,0 +1,22 @@
+@startuml
+class com.example.app0505.LeDeviceListAdapter {
+- ArrayList<BeaconDTO> mLeDevices
+- LayoutInflater mInflater
++ void addDevice(BluetoothDevice,int,byte[])
++ BeaconDTO getDevice(int)
++ void clear()
++ int getCount()
++ Object getItem(int)
++ long getItemId(int)
++ View getView(int,View,ViewGroup)
+}
+class com.example.app0505.LeDeviceListAdapter$ViewHolder {
+~ TextView deviceName
+~ TextView deviceAddress
+~ TextView deviceRssi
+}
+
+
+android.widget.BaseAdapter <|-- com.example.app0505.LeDeviceListAdapter
+com.example.app0505.LeDeviceListAdapter +.. com.example.app0505.LeDeviceListAdapter$ViewHolder
+@enduml

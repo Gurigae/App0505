@@ -1,0 +1,73 @@
+@startuml
+class com.example.app0505.CSVHelper {
+- Context context
++ void saveDataToCSV(ArrayList<Integer>,ArrayList<Integer>,ArrayList<Integer>,int,String)
+}
+class com.example.app0505.BluetoothHelper {
+- int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION
+- Context context
+- BluetoothManager bluetoothmanager
+- BluetoothAdapter bluetoothadapter
+~ Activity activity
++ android.bluetooth.le.ScanCallback leScanCallback
++ void permissionhelper()
++ void bleCheck(BluetoothAdapter)
++ void startScan()
++ void stopScan()
+}
+class com.example.app0505.BeaconDTO {
+~ String name
+~ String address
+~ int rssi
++ String getName()
++ String getAddress()
++ int getRssi()
++ void setName(String)
++ void setAddress(String)
++ void setRssi(int)
+}
+class com.example.app0505.LeDeviceListAdapter {
+- ArrayList<BeaconDTO> mLeDevices
+- LayoutInflater mInflater
++ void addDevice(BluetoothDevice,int,byte[])
++ BeaconDTO getDevice(int)
++ void clear()
++ int getCount()
++ Object getItem(int)
++ long getItemId(int)
++ View getView(int,View,ViewGroup)
+}
+class com.example.app0505.LeDeviceListAdapter$ViewHolder {
+~ TextView deviceName
+~ TextView deviceAddress
+~ TextView deviceRssi
+}
+class com.example.app0505.MainActivity {
+- int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION
+- BluetoothManager bluetoothManager
+- BluetoothAdapter bluetoothAdapter
+- LeDeviceListAdapter mLeDeviceListAdapter
+- EditText editMac1
+- Button startButton
+- CSVHelper csvhelper
+- BluetoothHelper bluetoothhelper
+- int countsize
+- String mac1
+~ ArrayList<Integer> beacon1
+~ ArrayList<Integer> beacon2
+~ ArrayList<Integer> beacon3
++ android.bluetooth.le.ScanCallback leScanCallback
+# void onCreate(Bundle)
+- void preparingScan()
+- void firstSetting()
+- void bleCheck(BluetoothAdapter)
+- void saveDataToCSV()
+- void startScan()
+- void stopScan()
+}
+
+
+android.widget.BaseAdapter <|-- com.example.app0505.LeDeviceListAdapter
+com.example.app0505.LeDeviceListAdapter +.. com.example.app0505.LeDeviceListAdapter$ViewHolder
+androidx.appcompat.app.AppCompatActivity <|-- com.example.app0505.MainActivity
+@enduml
