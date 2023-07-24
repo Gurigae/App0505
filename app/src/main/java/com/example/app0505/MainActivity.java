@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        // 장치 리스트뷰
+        // 장치 리스트뷰 초기화
         mLeDeviceListAdapter = new LeDeviceListAdapter(this);
         ListView listView = findViewById(R.id.listview);
         listView.setAdapter(mLeDeviceListAdapter);

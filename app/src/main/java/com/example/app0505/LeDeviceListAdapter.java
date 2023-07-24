@@ -24,17 +24,18 @@ public class LeDeviceListAdapter extends BaseAdapter {
 
     @SuppressLint("MissingPermission")
     public void addDevice(BluetoothDevice device, int rssi, byte[] scanRecord) {
-
         for(int i=0; i<mLeDevices.size(); i++){
             BeaconDTO dto = mLeDevices.get(i);
             if(dto.getAddress().equals(device.getAddress())){
                 dto.setName(device.getName());
                 dto.setRssi(rssi);
+                notifyDataSetChanged();
                 return;
             }
         }
         mLeDevices.add(new BeaconDTO(device.getName(), device.getAddress(), rssi));
         Log.d("DEVICE", "Device found: " + device.getName() + " " + device.getAddress());
+        notifyDataSetChanged();
      }
 
     public BeaconDTO getDevice(int position) {

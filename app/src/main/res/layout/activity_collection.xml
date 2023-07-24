@@ -97,6 +97,12 @@
             android:text="SET"
             />
         <Button
+            android:id="@+id/clear_collectionpage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="CLEAR"
+            />
+        <Button
             android:id="@+id/send_collectionpage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

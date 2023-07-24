@@ -14,11 +14,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
 import java.util.ArrayList;
+import java.util.List;
 
 //BLE 디바이스 스캔을 위한 블루투스 기능이 포함된 클래스
 public class BluetoothHelper {
@@ -26,17 +28,24 @@ public class BluetoothHelper {
     private  Context context;
     private BluetoothManager bluetoothmanager;
     private BluetoothAdapter bluetoothadapter;
+    LeDeviceListAdapter adapter;
     Activity activity;
+    ArrayList<BeaconDTO> scanResults;
+    int scanCount=0;
+    int targetSize;
 
     //Bluetooth를 사용하기 위한 초기 설정 함수.
     //시스템 서비스에서 블루투스 서비스를 가져와 블루투스 매니저에 저장
+
     //BluetoothManager의 장치의 기본 어댑터를 가져와 bluetoothadapter에 저장.
-    public BluetoothHelper(Context context,Activity activity)
+    public BluetoothHelper(Context context,Activity activity,int targetSize)
     {
         this.activity = activity;
         this.context = context;
+        this.targetSize=targetSize;
         bluetoothmanager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothadapter = bluetoothmanager.getAdapter();
+        adapter = new LeDeviceListAdapter(context);
 
         //블루투스의 권한 요청
         //Activity
@@ -45,23 +54,16 @@ public class BluetoothHelper {
                 MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
     }
 
-    /*
-    블루투스 사용을 위한 권한 관련 함수.
-    **BluetoothHelper에 편입시킴**
-    public void permissionCheck(){
-        ActivityCompat.requestPermissions(activity,
-                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
+    public void bleCall()
+    {
+        bluetoothmanager=(BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        bluetoothadapter=bluetoothmanager.getAdapter();
     }
-    */
-
-
     //
     public void bleCheck(BluetoothAdapter bluetoothadapter){
         if (bluetoothadapter==null)
         {
             Toast.makeText(activity,"블루투스를 지원하지 않는 장비입니다.",Toast.LENGTH_SHORT);
-            activity.finish();
         }
         else
         {
@@ -87,7 +89,7 @@ public class BluetoothHelper {
     }
     //LOW LATENCY 방식의 장치 스캔. 메소드를 사용하려는 곳에서 스캔 필터를 따로 작성해야 함
     //TODO: 수집용 액티비티, 테스트용 액티비티를 위한 startScan() 별도 작성해야 함.
-    public void startScan(ArrayList<ScanFilter> scanfilters){
+    public void startScan(List<ScanFilter> scanFilters){
         bleCheck(bluetoothadapter);
         if (bluetoothadapter != null && bluetoothadapter.isEnabled())
         {
@@ -100,12 +102,30 @@ public class BluetoothHelper {
             }
             else
             {
+                //  scanfilters 작성
                 ScanSettings.Builder scanSettingsBuilder = new ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY);
                 //bluetoothadapter.getBluetoothLeScanner().startScan(leScanCallback); //일반 스캔
-                bluetoothadapter.getBluetoothLeScanner().startScan(scanfilters, scanSettingsBuilder.build(),(ScanCallback) leScanCallback);
+                //List<ScanFilter> scanFilters = new ArrayList<>();
+                bluetoothadapter.getBluetoothLeScanner().startScan(scanFilters, scanSettingsBuilder.build(),(ScanCallback) leScanCallback);
+                Toast.makeText(activity,"스캔 시작",Toast.LENGTH_SHORT).show();
                 //스캔필터를 따라 LOW_LATENCY 기반 스캔
             }
         }
+    }
+
+    public List<ScanFilter> scanFilter(String mac1, String mac2, String mac3){
+        List<ScanFilter> scanFilters = new ArrayList<>();
+        ScanFilter scanFilter1 = new ScanFilter.Builder().setDeviceAddress(mac1).build();
+        scanFilters.add(scanFilter1);
+
+        ScanFilter scanFilter2 = new ScanFilter.Builder().setDeviceAddress(mac2).build();
+        scanFilters.add(scanFilter2);
+
+        ScanFilter scanFilter3 = new ScanFilter.Builder().setDeviceAddress(mac3).build();
+        scanFilters.add(scanFilter3);
+
+        return scanFilters;
+
     }
 
     public void stopScan(){
@@ -140,6 +160,13 @@ public class BluetoothHelper {
         return false;
     }
 
+    public void notifyDataSetChanged(){
+        if(adapter!=null)
+        {
+            adapter.notifyDataSetChanged();
+        }
+    }
+
     //BLE 스캔 콜백 함수
     public android.bluetooth.le.ScanCallback leScanCallback = new android.bluetooth.le.ScanCallback()
     {
@@ -149,6 +176,16 @@ public class BluetoothHelper {
             int rssi=result.getRssi();
             byte[] ScanRecord = result.getScanRecord() != null ? result.getScanRecord().getBytes() : null;
             String deviceAddress = device.getAddress();
+            Log.d("device",deviceAddress+" 수집");
+
+            //scanResults.add(result);
+            scanCount++;
+            if(scanCount>=targetSize){
+                stopScan();
+            }
+
+            adapter.addDevice(device,rssi,ScanRecord);
+            adapter.notifyDataSetChanged();
         }
 
         public void onScanFailed(int errorCode)
