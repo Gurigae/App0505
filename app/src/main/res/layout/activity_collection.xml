@@ -13,7 +13,7 @@
         android:text="COLLECTION PAGE"
         android:gravity="center"
         android:textSize="30dp"
-        android:layout_weight="1"
+        android:layout_weight="0"
         />
 
 
@@ -21,26 +21,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1">
+        android:layout_weight="0.2">
         <EditText
             android:id="@+id/mac1_collectionpage"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:hint="MAC1"
+            android:padding="8dp"
             android:layout_weight="1"
             />
         <EditText
             android:id="@+id/mac2_collectionpage"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:hint="MAC2"
+            android:padding="8dp"
             android:layout_weight="1"
             />
         <EditText
             android:id="@+id/mac3_collectionpage"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:hint="MAC3"
+            android:padding="8dp"
             android:layout_weight="1"
             />
     </LinearLayout>
@@ -51,16 +54,18 @@
         android:orientation="horizontal">
         <EditText
             android:id="@+id/area_collectionpage"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
+            android:padding="8dp"
             android:hint="AREA"
             />
         <EditText
             android:id="@+id/size_collectionpage"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
+            android:padding="8dp"
             android:hint="SIZE"
             />
     </LinearLayout>
@@ -70,8 +75,15 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <Button
+            android:id="@+id/set_collectionpage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="SET"
+            android:layout_weight="1"
+            />
+        <Button
             android:id="@+id/start_collectionpage"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="START"
             android:gravity="center"
@@ -79,7 +91,7 @@
             />
         <Button
             android:id="@+id/stop_collectionpage"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="STOP"
             android:layout_weight="1"
@@ -89,44 +101,60 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <Button
-            android:id="@+id/set_collectionpage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="SET"
-            />
+        android:orientation="horizontal">
+
         <Button
             android:id="@+id/clear_collectionpage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="CLEAR"
-            />
-        <Button
-            android:id="@+id/send_collectionpage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="SEND"
-            />
-        <Button
-            android:id="@+id/save_collectionpage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="SAVE"
+            android:layout_weight="1"
             />
         <Button
             android:id="@+id/back_collectionpage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="BACK"
-             />
+            android:layout_weight="1"
+            />
+
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/send_collectionpage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SEND"
+            android:layout_weight="1"
+            />
+        <Button
+            android:id="@+id/save_collectionpage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SAVE"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
 
     <ListView
         android:id="@+id/listview"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_weight="0.3"
+        />
+    <TextView
+        android:id="@+id/collectedSize_collection"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.2"
+        android:text="수집 진행도: "
+        android:textSize="16sp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         />
 
 </LinearLayout>

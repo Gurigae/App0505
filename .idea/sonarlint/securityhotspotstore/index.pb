@@ -10,5 +10,9 @@ S
 class.puml,7/b/7bb0cb01e981f0b880f246fc1825419bf1d7acf3
 ]
 -.idea/sonarlint/securityhotspotstore/index.pb,8/8/88a9255124c95bdc913197c120a8d560edc59c8e
-8
-124.puml,8/0/80c5f719375592b2433e3e494edb1741656186de
+d
+4app/src/main/java/com/example/app0505/BeaconDTO.java,c/2/c208d647e6bfc197cbd5cd35a00285faa1796529
+<
+build.gradle,f/0/f07866736216be0ee2aba49e392191aeae700a35
+?
+settings.gradle,0/5/05efc8b1657769a27696d478ded1e95f38737233
